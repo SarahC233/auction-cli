@@ -1,0 +1,28 @@
+{
+  "name": "auction-cli",
+  "version": "1.0.0",
+  "description": "A CLI tool to manage auction items in a MongoDB database",
+  "main": "index.js",
+  "bin": {
+    "auction-cli": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "seed": "node index.js seed",
+    "delete": "node index.js delete",
+    "add": "node index.js add",
+    "delete-item": "node index.js delete-item"
+  },
+  "keywords": [
+    "CLI",
+    "MongoDB",
+    "auction",
+    "node"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^12.1.0",
+    "mongoose": "^8.4.1"
+  }
+}
