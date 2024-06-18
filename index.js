@@ -4,11 +4,14 @@ const { program } = require("commander");
 const connectDB = require("./config/db");
 const AuctionItem = require("./models/AuctionItem");
 const seedData = require("./data/seedData");
+const express = require("express");
+const bodyParser = require("body-parser");
 
 const connectDatabase = async (dbName) => {
   await connectDB(dbName);
 };
 
+// CLI Commands
 program
   .command("seed <dbName>")
   .description("Seed data into the specified database")
@@ -90,6 +93,36 @@ program
       console.error(err);
       process.exit(1);
     }
+  });
+
+program
+  .command("serve <dbName>")
+  .description("Start the API server")
+  .action(async (dbName) => {
+    await connectDatabase(dbName);
+
+    const app = express();
+    app.use(bodyParser.json());
+
+    // Search route
+    app.get("/api/items/search", async (req, res) => {
+      try {
+        const { keyword } = req.query;
+        const regex = new RegExp(keyword, "i"); // Case-insensitive regex for keyword search
+        const items = await AuctionItem.find({
+          $or: [
+            { title: { $regex: regex } },
+            { description: { $regex: regex } },
+          ],
+        });
+        res.json(items);
+      } catch (err) {
+        res.status(500).json({ message: err.message });
+      }
+    });
+
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   });
 
 program.parse(process.argv);
