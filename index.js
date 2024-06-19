@@ -1,29 +1,26 @@
 #!/usr/bin/env node
 
 const { program } = require("commander");
+const {
+  seedDatabase,
+  deleteAllData,
+  addItem,
+  deleteItem,
+} = require("./cliCommands");
 const connectDB = require("./config/db");
-const AuctionItem = require("./models/AuctionItem");
-const seedData = require("./data/seedData");
 const express = require("express");
 const bodyParser = require("body-parser");
-
-const connectDatabase = async (dbName) => {
-  await connectDB(dbName);
-};
+const AuctionItem = require("./models/AuctionItem");
 
 // CLI Commands
 program
   .command("seed <dbName>")
   .description("Seed data into the specified database")
   .action(async (dbName) => {
-    await connectDatabase(dbName);
     try {
-      await AuctionItem.deleteMany();
-      await AuctionItem.insertMany(seedData);
-      console.log("Data seeded successfully");
+      await seedDatabase(dbName);
       process.exit();
     } catch (err) {
-      console.error(err);
       process.exit(1);
     }
   });
@@ -32,13 +29,10 @@ program
   .command("delete <dbName>")
   .description("Delete all data from the specified database")
   .action(async (dbName) => {
-    await connectDatabase(dbName);
     try {
-      await AuctionItem.deleteMany();
-      console.log("All data deleted successfully");
+      await deleteAllData(dbName);
       process.exit();
     } catch (err) {
-      console.error(err);
       process.exit(1);
     }
   });
@@ -60,19 +54,10 @@ program
     "Reserve price of the auction item"
   )
   .action(async (dbName, options) => {
-    await connectDatabase(dbName);
     try {
-      const newItem = new AuctionItem({
-        title: options.title,
-        description: options.description,
-        start_price: options.start_price,
-        reserve_price: options.reserve_price,
-      });
-      await newItem.save();
-      console.log("New item added successfully");
+      await addItem(dbName, options);
       process.exit();
     } catch (err) {
-      console.error(err);
       process.exit(1);
     }
   });
@@ -84,13 +69,10 @@ program
   )
   .requiredOption("-i, --id <id>", "ID of the auction item to delete")
   .action(async (dbName, options) => {
-    await connectDatabase(dbName);
     try {
-      await AuctionItem.findByIdAndDelete(options.id);
-      console.log(`Item with ID ${options.id} deleted successfully`);
+      await deleteItem(dbName, options.id);
       process.exit();
     } catch (err) {
-      console.error(err);
       process.exit(1);
     }
   });
@@ -99,7 +81,7 @@ program
   .command("serve <dbName>")
   .description("Start the API server")
   .action(async (dbName) => {
-    await connectDatabase(dbName);
+    await connectDB(dbName);
 
     const app = express();
     app.use(bodyParser.json());
