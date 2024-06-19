@@ -63,5 +63,13 @@ module.exports = [
     description: "A vintage camera in excellent working condition.",
     start_price: 200,
     reserve_price: 300, 
+  },
+
+  {
+    title: "Succulent Arrangement",
+    description: "A beautiful succulent plant arrangement in a stylish pot.",
+    start_price: 50,
+    reserve_price: 80,
   }
+
 ];
